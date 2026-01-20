@@ -16,6 +16,7 @@ langchain_community.document_loaders 모듈에서 WebBaseLoader 클래스를 사
 특정 웹페이지(위키피디아 정책과 지침)의 데이터를 가져오는 방법을 보여준다.
 웹 크롤링을 통해 웹페이지의 텍스트 데이터를 추출하여 Document 객체의 리스트로 변환.
 '''
+import vectorstore
 # Data Loader - 웹페이지 데이터 가져오기
 from langchain_community.document_loaders import WebBaseLoader
 
@@ -45,6 +46,7 @@ LLM 모델이나 API의 입력 크기에 대한 제한이 있기 때문에,
 그리고, 프롬프트가 지나치게 길어질 경우 중요한 정보가 상대적으로 희석되는 문제가 있을 수도 있다.
 따라서, 적정한 크기로 텍스트를 분할하는 과정이 필요하다.
 '''
+
 # Text Split (Documents -> small chunks: Documents)
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
@@ -57,3 +59,55 @@ print(splits[10])
 print(splits[10].page_content)
 # metadata 속성을 통해 원본 문서의 정보를 포함하는 메타데이터를 출력.
 print(splits[10].metadata)
+
+
+'''
+4. 검색(Retrieval)
+사용자의 질문이나 주어진 컨텍스트에 가장 관련된 정보를 찾아내는 과정.
+사용자의 입력을 바탕으로 쿼리를 생성하고, 인덱싱된 데이터에서 가장 관련성 높은 정보를 검색. 
+LangChain의 retriever 메소드를 사용.
+
+5. 생성(Generation)
+검색된 정보를 바탕으로 사용자의 질문에 답변을 생성하는 최종 단계.
+LLM 모델에 검색 결과와 함께 사용자의 입력을 전달.
+모델은 사전 학습된 지식과 검색 결과를 결합하여 주어진 질문에 가장 적절한 답변을 생성.
+검색과 생성 단계를 수행하는 코드. 
+vectorstore.as_retriever() 메소드는 Chroma 벡터 스토어를 검색기로 사용하여 사용자의 질문과 관련된 문서를 검색. 
+format_docs 함수는 검색된 문서들을 하나의 문자열로 반환. 
+RAG 체인을 구성하고, 주어진 질문에 대한 답변을 생성.
+'''
+
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
+
+# Prompt
+template = '''Answer the question based only on the following context:
+{context}
+
+Question: {question}
+'''
+
+prompt = ChatPromptTemplate.from_template(template)
+
+# LLM
+model = ChatOpenAI(model='gpt-4o-mini', temperature=0)
+
+# Rretriever
+retriever = vectorstore.as_retriever()
+
+# Combine Documents
+def format_docs(docs):
+    return '\n\n'.join(doc.page_content for doc in docs)
+
+# RAG Chain 연결
+rag_chain = (
+    {'context': retriever | format_docs, 'question': RunnablePassthrough()}
+    | prompt
+    | model
+    | StrOutputParser()
+)
+
+# Chain 실행
+rag_chain.invoke("격하 과정에 대해서 설명해주세요.")

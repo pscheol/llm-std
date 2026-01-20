@@ -21,10 +21,13 @@ uv add transformers datasets accelerate
 uv add beautifulsoup4
 uv add pypdf
 
-
+uv add lark
 uv add langchain-huggingface \
        faiss-cpu \
        llama-cpp-python
+       
+       
+uv add langchain-teddynote
 ```
 
 # 제미나이 OpenAIsms 비용이 발생함으로 Ollama나 Huggingface 사용
