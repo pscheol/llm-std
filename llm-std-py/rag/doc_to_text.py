@@ -1,0 +1,6 @@
+## txt 파일 추출
+from langchain_community.document_loaders import TextLoader
+
+loader = TextLoader('data/hello.txt', encoding='utf-8')
+docs = loader.load()
+print(docs)

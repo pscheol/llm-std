@@ -1,75 +1,59 @@
-from langchain import LlamaCpp, PromptTemplate
-from langchain.embeddings.huggingface import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
-from langchain.chains import RetrievalQA
+'''
+##############################################################################
+RAG(Retrieval-Augmented Generation) 파이프라인은 기존의 언어 모델에 검색 기능을 추가하여,
+주어진 질문이나 문제에 대해 더 정확하고 풍부한 정보를 기반으로 답변을 생성할 수 있게 해준다.
+이 파이프라인은 크게 데이터 로드, 텍스트 분할, 인덱싱, 검색, 생성의 다섯 단계로 구성.
 
+##############################################################################
 
-text = """
-Interstellar is a 2014 epic science fiction film co-written, directed, and produced by Christopher Nolan.
-It stars Matthew McConaughey, Anne Hathaway, Jessica Chastain, Bill Irwin, Ellen Burstyn, Matt Damon, and Michael Caine.
-Set in a dystopian future where humanity is struggling to survive, the film follows a group of astronauts who travel through a wormhole near Saturn in search of a new home for mankind.
+1. 데이터 로드(Load Data)
+RAG에 사용할 데이터를 불러오는 단계.
+외부 데이터 소스에서 정보를 수집하고, 필요한 형식으로 변환하여 시스템에 로드.
+예) 공개 데이터셋, 웹 크롤링을 통해 얻은 데이터, 또는 사전에 정리된 자료일 수 있다.
+가져온 데이터는 검색에 사용될 지식이나 정보를 담고 있어야 한다.
 
-Brothers Christopher and Jonathan Nolan wrote the screenplay, which had its origins in a script Jonathan developed in 2007.
-Caltech theoretical physicist and 2017 Nobel laureate in Physics[4] Kip Thorne was an executive producer, acted as a scientific consultant, and wrote a tie-in book, The Science of Interstellar.
-Cinematographer Hoyte van Hoytema shot it on 35 mm movie film in the Panavision anamorphic format and IMAX 70 mm.
-Principal photography began in late 2013 and took place in Alberta, Iceland, and Los Angeles.
-Interstellar uses extensive practical and miniature effects and the company Double Negative created additional digital effects.
+langchain_community.document_loaders 모듈에서 WebBaseLoader 클래스를 사용하여
+특정 웹페이지(위키피디아 정책과 지침)의 데이터를 가져오는 방법을 보여준다.
+웹 크롤링을 통해 웹페이지의 텍스트 데이터를 추출하여 Document 객체의 리스트로 변환.
+'''
+# Data Loader - 웹페이지 데이터 가져오기
+from langchain_community.document_loaders import WebBaseLoader
 
-Interstellar premiered on October 26, 2014, in Los Angeles.
-In the United States, it was first released on film stock, expanding to venues using digital projectors.
-The film had a worldwide gross over $677 million (and $773 million with subsequent re-releases), making it the tenth-highest grossing film of 2014.
-It received acclaim for its performances, direction, screenplay, musical score, visual effects, ambition, themes, and emotional weight.
-It has also received praise from many astronomers for its scientific accuracy and portrayal of theoretical astrophysics. Since its premiere, Interstellar gained a cult following,[5] and now is regarded by many sci-fi experts as one of the best science-fiction films of all time.
-Interstellar was nominated for five awards at the 87th Academy Awards, winning Best Visual Effects, and received numerous other accolades"""
+# 위키피디아 정책과 지침
+url = 'https://ko.wikipedia.org/wiki/%EC%9C%84%ED%82%A4%EB%B0%B1%EA%B3%BC:%EC%A0%95%EC%B1%85%EA%B3%BC_%EC%A7%80%EC%B9%A8'
+loader = WebBaseLoader(url)
 
-# 문장을 나누어 리스트로 만듭니다.
-texts = text.split('.')
+# 웹페이지 텍스트 -> Documents
+docs = loader.load()
 
-# 공백과 줄바꿈 문자를 삭제합니다.
-texts = [t.strip(' \n') for t in texts]
+print(len(docs))
+print(len(docs[0].page_content))
+print(docs[0].page_content[5000:6000])
 
+##############################################################################
 
-## 생성 모델 로드
-llm = LlamaCpp(
-    model_path="/ai/model/Phi-3-mini-4k-instruct-fp16.gguf",
-    n_gpu_layers=-1,
-    max_tokens=500,
-    n_ctx=2048,
-    seed=42,
-    verbose=False,
-)
+'''
+2. 텍스트 분할(Text Split)
+불러온 데이터를 작은 크기의 단위(chunk)로 분할하는 과정.
+자연어 처리(NLP) 기술을 활용하여 큰 문서를 처리가 쉽도록 문단, 문장 또는 구 단위로 나누는 작업으로 검색 효율성을 높이기 위한 중요한 과정이다.
 
-## 임베딩 모델 로드
-embbeding_model = HuggingFaceEmbeddings(model_name='BAAI/bge-small-en-v1.5')
+RecursiveCharacterTextSplitter라는 텍스트 분할 도구를 사용하고 있다. 
+간략하게 설명하면 12552 개의 문자로 이루어진 긴 문장을 최대 1000글자 단위로 분할한다.
+200글자는 각 분할마다 겹치게 하여 문맥이 잘려나가지 않고 유지되게 한다. 실행 결과를 보면 18개 조각으로 나눠지게 된다..
+LLM 모델이나 API의 입력 크기에 대한 제한이 있기 때문에,
+제한에 걸리지 않도록 적정한 크기로 텍스트의 길이를 줄일 필요가 있다.
+그리고, 프롬프트가 지나치게 길어질 경우 중요한 정보가 상대적으로 희석되는 문제가 있을 수도 있다.
+따라서, 적정한 크기로 텍스트를 분할하는 과정이 필요하다.
+'''
+# Text Split (Documents -> small chunks: Documents)
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+splits = text_splitter.split_documents(docs)
 
-## 벡터 데이터베이스 구축
-db = FAISS.from_texts(texts, embbeding_model)
-
-
-## 프롬프트 템플릿 생성
-template = """
-<|user|>
-Relevant information:
-{context}
-Provide a concise answer the following question using the relevant information provided above:
-{question}<|end|>
-<|assistant|>
-"""
-prompt = PromptTemplate(template=template, input_variables=["context", "question"])
-
-## RAG 파이프라인
-rag = RetrievalQA.from_chain_type(
-    llm=llm,
-    chain_type="stuff",
-    retriever=db.as_retriever(),
-    chain_type_kwargs={
-        "prompt": prompt
-    },
-    verbose=True
-)
-
-response = rag.invoke('Income generated')
-
-print(response)
-
+print(len(splits))
+print(splits[10])
+#page_content에는 분할된 텍스트 조각이 있다.
+print(splits[10].page_content)
+# metadata 속성을 통해 원본 문서의 정보를 포함하는 메타데이터를 출력.
+print(splits[10].metadata)
