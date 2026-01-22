@@ -28,6 +28,7 @@ uv add langchain-huggingface \
        
        
 uv add langchain-teddynote
+uv add duckduckgo-search
 ```
 
 # 제미나이 OpenAIsms 비용이 발생함으로 Ollama나 Huggingface 사용
