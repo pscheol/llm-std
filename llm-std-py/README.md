@@ -26,7 +26,7 @@ uv add langchain-huggingface \
        faiss-cpu \
        llama-cpp-python
        
-       
+uv add open_clip_torch
 uv add langchain-teddynote
 uv add duckduckgo-search
 ```
