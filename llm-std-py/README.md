@@ -29,6 +29,9 @@ uv add langchain-huggingface \
 uv add open_clip_torch
 uv add langchain-teddynote
 uv add duckduckgo-search
+
+## llamaindex
+uv add llama-index llama-index-llms-ollama llama-index-embeddings-ollama
 ```
 
 # 제미나이 OpenAIsms 비용이 발생함으로 Ollama나 Huggingface 사용
