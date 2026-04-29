@@ -2,7 +2,6 @@ package com.llmstd.llmstdai.controller
 
 import com.llmstd.llmstdai.chatmodel.AiService
 import com.llmstd.llmstdai.chatmodel.ChatClientAiService
-import org.springframework.ai.chat.client.ChatClient
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping

@@ -15,4 +15,13 @@ class HomeController {
     fun homeStream(): String {
         return "home-stream"
     }
+    @GetMapping("/prompt-template")
+    fun promptStream(): String {
+        return "prompt-template"
+    }
+
+    @GetMapping("/zero-shot-prompt")
+    fun zeroShotPrompt(): String {
+        return "zero-shot-prompt"
+    }
 }

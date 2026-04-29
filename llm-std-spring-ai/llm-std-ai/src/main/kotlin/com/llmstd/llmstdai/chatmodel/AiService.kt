@@ -7,7 +7,7 @@ import org.springframework.ai.chat.model.ChatModel
 import org.springframework.ai.chat.model.ChatResponse
 import org.springframework.ai.chat.prompt.ChatOptions
 import org.springframework.ai.chat.prompt.Prompt
-import org.springframework.ai.ollama.api.OllamaApi
+import org.springframework.ai.chat.prompt.PromptTemplate
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 
@@ -18,6 +18,7 @@ class AiService(
 
     fun generateText(question: String): String {
         val (systemMessage: SystemMessage, userMessage: UserMessage, chatOption: ChatOptions) = chatOption(question)
+
 
         //프롬프트 설정
         val prompt: Prompt = Prompt.builder()
@@ -69,5 +70,4 @@ class AiService(
             assistantMessage?.text ?: ""
         }
     }
-
 }
