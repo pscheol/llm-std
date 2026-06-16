@@ -16,6 +16,41 @@ class HomeController {
         return "advisor-home"
     }
 
+    @GetMapping("/embeddings")
+    fun embeddingHome(): String {
+        return "embedding-home"
+    }
+
+    @GetMapping("/text-embedding")
+    fun textEmbedding(): String {
+        return "text-embedding"
+    }
+
+    @GetMapping("/add-document")
+    fun addDocument(): String {
+        return "add-document"
+    }
+
+    @GetMapping("/search-document-1")
+    fun searchDocument1(): String {
+        return "search-document-1"
+    }
+
+    @GetMapping("/search-document-2")
+    fun searchDocument2(): String {
+        return "search-document-2"
+    }
+
+    @GetMapping("/delete-document")
+    fun deleteDocument(): String {
+        return "delete-document"
+    }
+
+    @GetMapping("/image-embedding")
+    fun faceRecognition(): String {
+        return "image-embedding"
+    }
+
     @GetMapping("/stream")
     fun homeStream(): String {
         return "home-stream"
