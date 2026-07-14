@@ -11,6 +11,27 @@ class HomeController {
         return "home"
     }
 
+    @GetMapping("/inmemory")
+    fun inmemory(): String {
+        return "inmemory"
+    }
+
+    @GetMapping("/txt-pdf-word-etl")
+    fun txtPdfDocxEtl(): String {
+        return "txt-pdf-word-etl"
+    }
+
+    @GetMapping("/html-etl")
+    fun htmlEtl(): String {
+        return "html-etl"
+    }
+
+    @GetMapping("/jdbcmemory")
+    fun jdbcmemory(): String {
+        return "jdbc-chat"
+    }
+
+
     @GetMapping("/advisor")
     fun advisorHome(): String {
         return "advisor-home"
