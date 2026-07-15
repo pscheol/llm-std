@@ -1,7 +1,7 @@
 package com.llmstd.llmstdai.memory
 
 import org.springframework.ai.chat.client.ChatClient
-import org.springframework.ai.chat.client.advisor.PromptChatMemoryAdvisor
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor
 import org.springframework.ai.chat.memory.ChatMemory
 import org.springframework.ai.chat.memory.MessageWindowChatMemory
@@ -21,7 +21,7 @@ class JdbcMemoryAIService(
 
     private val chatClient: ChatClient = chatClientBuilder
         .defaultAdvisors(
-            PromptChatMemoryAdvisor.builder(chatMemory).build(),
+            MessageChatMemoryAdvisor.builder(chatMemory).build(),
             SimpleLoggerAdvisor(Ordered.LOWEST_PRECEDENCE - 1)
         )
         .build()

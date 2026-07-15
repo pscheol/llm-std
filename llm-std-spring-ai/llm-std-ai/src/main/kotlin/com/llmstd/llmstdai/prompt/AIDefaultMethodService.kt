@@ -14,7 +14,6 @@ class AIDefaultMethodService(chatClientBuilder: ChatClient.Builder) {
         .defaultOptions(ChatOptions.builder()
             .temperature(1.0)
             .maxTokens(300)
-            .build()
         )
         .build()
 

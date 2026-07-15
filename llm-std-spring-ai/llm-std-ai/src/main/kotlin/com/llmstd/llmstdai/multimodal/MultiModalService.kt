@@ -30,7 +30,7 @@ class MultiModalService(
         return ImageOptionsBuilder.builder()
             .width(1536)
             .height(1024)
-            .N(1)
+            .n(1)
             .model("gemma4:e4b-it-q8_0")
             .build()
     }

@@ -18,7 +18,6 @@ class ChatClientAiService(
                 ChatOptions.builder()
                     .temperature(0.3)
                     .maxTokens(1000)
-                    .build()
             )
             .call()
             .content() ?: ""
@@ -32,7 +31,6 @@ class ChatClientAiService(
                 ChatOptions.builder()
                     .temperature(0.3)
                     .maxTokens(1000)
-                    .build()
             )
             .stream()
             .content()

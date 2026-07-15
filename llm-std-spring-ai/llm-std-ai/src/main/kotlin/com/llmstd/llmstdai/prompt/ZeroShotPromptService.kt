@@ -16,7 +16,6 @@ class ZeroShotPromptService(chatClientBuilder: ChatClient.Builder) {
         .defaultOptions(ChatOptions.builder()
             .temperature(0.0)
             .maxTokens(4)
-            .build()
         )
         .build()
 

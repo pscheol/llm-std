@@ -26,6 +26,11 @@ class HomeController {
         return "html-etl"
     }
 
+    @GetMapping("/rag")
+    fun rag(): String {
+        return "rag"
+    }
+
     @GetMapping("/jdbcmemory")
     fun jdbcmemory(): String {
         return "jdbc-chat"
